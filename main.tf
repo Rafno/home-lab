@@ -29,3 +29,19 @@ resource "azurerm_storage_account" "storage" {
   tags = var.required_tags
 }
 
+resource "azurerm_sql_server" "server" {
+    name                         = "rafnar-server"
+    resource_group_name          = azurerm_resource_group.rg.name
+    location                     = azurerm_resource_group.rg.location
+    version                      = "12.0"
+    administrator_login          = var.USER
+    administrator_login_password = var.PASSWORD
+    }
+
+    resource "azurerm_sql_database" "database" {
+    name                = "Lyfjastofnun"
+    resource_group_name = azurerm_resource_group.rg.name
+    location            = azurerm_resource_group.rg.location
+    server_name         = azurerm_sql_server.server.name
+    edition             = "Basic"
+    }
