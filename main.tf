@@ -79,6 +79,7 @@ resource "azurerm_function_app" "app" {
         ftps_state = "Disabled"
     }
 
+  daily_memory_time_quota = 2
   # Enable if you need Managed Identity
   # identity {
   #   type = "SystemAssigned"
