@@ -20,3 +20,10 @@ variable "required_tags" {
     "owner" = "Rafnar",
   }
 }
+
+variable "user" {
+    description = ""
+}
+variable "pass" {
+    description = ""
+}
