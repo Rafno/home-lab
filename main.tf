@@ -36,12 +36,51 @@ resource "azurerm_sql_server" "server" {
     version                      = "12.0"
     administrator_login          = var.USER
     administrator_login_password = var.PASSWORD
+}
+
+resource "azurerm_sql_database" "database" {
+  name                = "Lyfjastofnun"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  server_name         = azurerm_sql_server.server.name
+  edition             = "Basic"
+}
+
+resource "azurerm_app_service_plan" "core" {
+  name                = "functions-home-lab-plan"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  kind                = "Linux"
+  reserved            = true
+
+  sku {
+    tier = "Dynamic"
+    size = "Y1"
+  }
+}
+
+resource "azurerm_function_app" "app" {
+  name                       = "functions-home-lab"
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  app_service_plan_id        = azurerm_app_service_plan.core.id
+  storage_account_name       = azurerm_storage_account.storage.name
+  storage_account_access_key = azurerm_storage_account.storage.primary_access_key
+  
+  https_only                 = true
+  os_type                    = "linux"
+  app_settings = {
+      "WEBSITE_RUN_FROM_PACKAGE" = "1"
+      "FUNCTIONS_WORKER_RUNTIME" = "python"
+  }
+
+  site_config {
+        linux_fx_version= "Python|3.8"        
+        ftps_state = "Disabled"
     }
 
-    resource "azurerm_sql_database" "database" {
-    name                = "Lyfjastofnun"
-    resource_group_name = azurerm_resource_group.rg.name
-    location            = azurerm_resource_group.rg.location
-    server_name         = azurerm_sql_server.server.name
-    edition             = "Basic"
-    }
+  # Enable if you need Managed Identity
+  # identity {
+  #   type = "SystemAssigned"
+  # }
+}
